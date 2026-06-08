@@ -8,6 +8,153 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+
+<style>
+.ai-agent-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.ai-agent-toggle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+.pride-badge {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background: #ff6b6b;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.ai-agent-window {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 450px;
+    max-width: 90vw;
+    height: 650px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 999;
+}
+
+.ai-agent-window.active {
+    display: flex;
+}
+
+.ai-agent-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ai-agent-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f7f9fc;
+}
+
+.message {
+    margin-bottom: 15px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.ai {
+    display: flex;
+    gap: 10px;
+}
+
+.message.ai .avatar {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.message.ai .content {
+    flex: 1;
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.message.user {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.message.user .content {
+    background: #667eea;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 70%;
+}
+
+.ai-agent-input {
+    padding: 15px;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    gap: 10px;
+}
+
+.ai-agent-input input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+.ai-agent-input button {
+    padding: 8px 15px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+</style>
+    
 </head>
 <body>
     <!-- Navigation -->
@@ -48,6 +195,42 @@
             </div>
         </div>
     </nav>
+
+<!-- AI Agent Floating Chat Button -->
+<div class="ai-agent-panel">
+    <button class="ai-agent-toggle" id="aiAgentToggle">
+        <i class="fas fa-robot"></i>
+        <span class="pride-badge">PRIDE</span>
+    </button>
+    
+    <div class="ai-agent-window" id="aiAgentWindow">
+        <div class="ai-agent-header">
+            <h3><i class="fas fa-shield-alt me-2"></i>We Study AI - PRIDE Framework</h3>
+            <button class="ai-agent-close" id="aiAgentClose">&times;</button>
+        </div>
+        <div class="ai-agent-messages" id="aiAgentMessages">
+            <div class="message ai">
+                <div class="avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="content">
+                    <strong>Welcome to PRIDE-Governed AI!</strong><br><br>
+                    This system follows ethical AI principles:<br>
+                    • <strong>P</strong>ause Points - Human review required<br>
+                    • <strong>R</strong>eview Cadence - Regular bias audits<br>
+                    • <strong>I</strong>nterpretability - Plain language explanations<br>
+                    • <strong>D</strong>isagreement Rights - No penalty for overrides<br>
+                    • <strong>E</strong>lders Council - Diverse human governance<br><br>
+                    How can I assist you today?
+                </div>
+            </div>
+        </div>
+        <div class="ai-agent-input">
+            <input type="text" id="aiMessageInput" placeholder="Ask about PRIDE framework or start a workflow...">
+            <button id="sendMessage">Send</button>
+        </div>
+    </div>
+</div>    
 
     <main>
         <!-- Hero Section -->
