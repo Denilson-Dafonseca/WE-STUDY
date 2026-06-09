@@ -179,12 +179,34 @@ function generateStudyPlan(assessment) {
     else if (assessment.concentrationLevel === 'high') sessionDuration = 60;
     
     const techniques = {
-        visual: ["Create mind maps", "Use color-coded notes", "Watch videos", "Use flashcards with images"],
-        auditory: ["Record and listen to notes", "Study in groups", "Use rhymes", "Listen to podcasts"],
-        reading: ["Write summaries", "Create outlines", "Read actively", "Rewrite notes"],
-        kinesthetic: ["Take movement breaks", "Use hands-on activities", "Walk while studying", "Build models"],
-        mixed: ["Combine multiple techniques", "Rotate activities", "Use varied methods"]
+        visual: ["Create mind maps and diagrams", "Use color-coded notes", "Watch educational videos", "Create flashcards with images", "Use visual analogies"],
+        auditory: ["Record and listen to your notes", "Study in groups and discuss aloud", "Use mnemonic devices and rhymes", "Listen to educational podcasts", "Explain concepts verbally"],
+        reading: ["Write detailed summaries", "Create bullet-point outlines", "Read textbooks actively", "Rewrite important information", "Create comparison charts"],
+        kinesthetic: ["Take frequent movement breaks", "Use hands-on experiments", "Walk while reciting information", "Build physical models", "Act out processes"],
+        mixed: ["Combine multiple techniques", "Rotate between different methods", "Create multimedia study materials", "Use varied approaches for different subjects"]
     };
+    
+    // Generate weekly schedule
+    const weeklySchedule = {};
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const sessionsPerDay = Math.max(1, Math.floor(assessment.studyHours * 60 / sessionDuration));
+    
+    days.forEach((day, index) => {
+        const isWeekend = (day === 'Saturday' || day === 'Sunday');
+        let sessions = isWeekend ? Math.max(1, sessionsPerDay - 1) : sessionsPerDay;
+        
+        const dailySubjects = [];
+        for (let i = 0; i < sessions; i++) {
+            const subjectIndex = (index * sessions + i) % subjects.length;
+            dailySubjects.push(subjects[subjectIndex]);
+        }
+        
+        weeklySchedule[day] = {
+            sessions: sessions,
+            subjects: dailySubjects,
+            totalMinutes: sessions * sessionDuration
+        };
+    });
     
     return {
         id: Date.now(),
@@ -193,7 +215,8 @@ function generateStudyPlan(assessment) {
         subjects: subjects,
         sessionDuration: sessionDuration,
         studyTechniques: techniques[assessment.learningStyle] || techniques.mixed,
-        summary: `Based on your ${assessment.learningStyle} learning style, study in ${sessionDuration}-minute sessions.`
+        weeklySchedule: weeklySchedule,
+        summary: `Based on your ${assessment.learningStyle} learning style and ${assessment.concentrationLevel} concentration level, you'll study best in ${sessionDuration}-minute focused sessions.`
     };
 }
 
@@ -240,10 +263,11 @@ function loadDashboard() {
         } else {
             studyPlansContainer.innerHTML = plans.map(plan => `
                 <div class="col-md-6 mb-4">
-                    <div class="plan-card p-3">
-                        <h5>Study Plan - ${new Date(plan.generatedAt).toLocaleDateString()}</h5>
-                        <p class="text-muted">${plan.subjects.length} subjects | ${plan.sessionDuration} min sessions</p>
-                        <button onclick="viewStudyPlan(${plan.id})" class="btn btn-primary btn-sm">View Plan</button>
+                    <div class="plan-card">
+                        <h5>📖 ${plan.subjects.length} Subjects</h5>
+                        <p class="text-muted small">Created: ${new Date(plan.generatedAt).toLocaleDateString()}</p>
+                        <p>🎯 ${plan.sessionDuration} min sessions | ${plan.learningStyle} learner</p>
+                        <button onclick="viewStudyPlan(${plan.id})" class="btn btn-primary btn-sm">View Full Plan</button>
                     </div>
                 </div>
             `).join('');
@@ -268,19 +292,37 @@ function loadStudyPlanDetail() {
     
     const plan = JSON.parse(planData);
     
+    // Update title and summary
     const titleElement = document.getElementById('planTitle');
     if (titleElement) titleElement.innerHTML = `Study Plan - ${new Date(plan.generatedAt).toLocaleDateString()}`;
     
     const summaryElement = document.getElementById('planSummary');
     if (summaryElement) summaryElement.innerHTML = plan.summary;
     
+    // Update session duration
     const durationElement = document.getElementById('sessionDuration');
     if (durationElement) durationElement.innerHTML = plan.sessionDuration;
     
+    // Update techniques list
     const techniquesList = document.getElementById('techniquesList');
     if (techniquesList) {
         techniquesList.innerHTML = plan.studyTechniques.map(tech => `
-            <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>${tech}</li>
+            <li class="list-group-item">
+                <i class="fas fa-check-circle text-success me-2"></i>${tech}
+            </li>
+        `).join('');
+    }
+    
+    // Update weekly schedule
+    const scheduleBody = document.getElementById('scheduleBody');
+    if (scheduleBody && plan.weeklySchedule) {
+        scheduleBody.innerHTML = Object.entries(plan.weeklySchedule).map(([day, schedule]) => `
+            <tr>
+                <td><strong>${day}</strong></td>
+                <td>${schedule.sessions} sessions</td>
+                <td>${schedule.subjects.join(', ')}</td>
+                <td>${schedule.totalMinutes} min</td>
+            </tr>
         `).join('');
     }
 }

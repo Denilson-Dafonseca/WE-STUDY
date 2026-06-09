@@ -137,6 +137,86 @@
             </div>
         </section>
 
+        <section class="learning-styles-section py-5 bg-light">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold mb-3">Personalized for Your Learning Style</h2>
+                    <p class="lead text-muted">We support all types of learners</p>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-md-2 col-6">
+                        <div class="style-card text-center p-3">
+                            <i class="fas fa-eye fa-2x mb-2"></i>
+                            <h6>Visual</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="style-card text-center p-3">
+                            <i class="fas fa-headphones fa-2x mb-2"></i>
+                            <h6>Auditory</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="style-card text-center p-3">
+                            <i class="fas fa-book fa-2x mb-2"></i>
+                            <h6>Reading/Writing</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="style-card text-center p-3">
+                            <i class="fas fa-hand-paper fa-2x mb-2"></i>
+                            <h6>Kinesthetic</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="style-card text-center p-3">
+                            <i class="fas fa-adjust fa-2x mb-2"></i>
+                            <h6>Mixed</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="style-card text-center p-3">
+                            <i class="fas fa-chart-pie fa-2x mb-2"></i>
+                            <h6>Custom</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="impact-section py-5">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <h2 class="fw-bold mb-4">Making a Difference in Namibia</h2>
+                        <p class="mb-3">Despite a 95.6% youth literacy rate, many Namibian learners struggle with effective study techniques. We Study bridges this gap by teaching <strong>how to learn</strong>, not just what to learn.</p>
+                        <div class="impact-stats mt-4">
+                            <div class="mb-3">
+                                <i class="fas fa-graduation-cap text-primary me-2"></i>
+                                <strong>Empowering Learners:</strong> Personalized strategies for every student
+                            </div>
+                            <div class="mb-3">
+                                <i class="fas fa-mobile-alt text-primary me-2"></i>
+                                <strong>Mobile-First Design:</strong> Optimized for smartphone learning
+                            </div>
+                            <div class="mb-3">
+                                <i class="fas fa-chalkboard-user text-primary me-2"></i>
+                                <strong>Complement, Not Replace:</strong> Supporting teachers and tutors
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="bg-primary text-white p-4 rounded-4">
+                            <i class="fas fa-quote-left fa-2x mb-3 opacity-50"></i>
+                            <p class="fs-5 mb-3">"Many learners struggle not because they lack intelligence, but because they've never been taught how to study effectively."</p>
+                            <p class="mb-0 fw-bold">— We Study Founding Philosophy</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="cta-section py-5 bg-gradient-primary">
             <div class="container text-center">
                 <h2 class="fw-bold mb-3">Ready to Transform Your Learning?</h2>
@@ -174,42 +254,8 @@
         </div>
     </footer>
 
-    <!-- AI Agent Panel -->
-    <div class="ai-agent-panel">
-        <button class="ai-agent-toggle" id="aiAgentToggle">
-            <i class="fas fa-robot"></i>
-            <span class="pride-badge">PRIDE</span>
-        </button>
-        
-        <div class="ai-agent-window" id="aiAgentWindow">
-            <div class="ai-agent-header">
-                <h3><i class="fas fa-shield-alt me-2"></i>We Study AI - PRIDE Framework</h3>
-                <button class="ai-agent-close" id="aiAgentClose">&times;</button>
-            </div>
-            <div class="ai-agent-messages" id="aiAgentMessages">
-                <div class="message ai">
-                    <div class="avatar"><i class="fas fa-robot"></i></div>
-                    <div class="content">
-                        <strong>Welcome to PRIDE-Governed AI!</strong><br><br>
-                        This system follows ethical AI principles:<br>
-                        • <strong>P</strong>ause Points - Human review required<br>
-                        • <strong>R</strong>eview Cadence - Regular bias audits<br>
-                        • <strong>I</strong>nterpretability - Plain language explanations<br>
-                        • <strong>D</strong>isagreement Rights - No penalty for overrides<br>
-                        • <strong>E</strong>lders Council - Diverse human governance
-                    </div>
-                </div>
-            </div>
-            <div class="ai-agent-input">
-                <input type="text" id="aiMessageInput" placeholder="Type 'start workflow' to begin...">
-                <button id="sendMessage">Send</button>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/app.js"></script>
-    <script src="js/ai-agent.js"></script>
     <script>
         checkAuth();
         updateUserCount();
