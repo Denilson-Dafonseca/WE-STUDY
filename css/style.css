@@ -193,3 +193,191 @@ body {
         border: 1px solid #ddd;
     }
 }
+
+/* Add to existing style.css */
+
+/* PRIDE Pause Point Styles */
+.pride-pause-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 2000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.pride-pause-card {
+    background: white;
+    border-radius: 20px;
+    max-width: 500px;
+    width: 90%;
+    animation: slideIn 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.pride-pause-header {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 20px 20px 0 0;
+}
+
+.pride-pause-body {
+    padding: 25px;
+}
+
+.pride-pause-footer {
+    padding: 15px 25px 25px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.pause-point-badge {
+    display: inline-block;
+    background: #f39c12;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.workflow-visualization {
+    background: #1a1a2e;
+    color: #00ff88;
+    padding: 15px;
+    border-radius: 10px;
+    font-family: monospace;
+    font-size: 12px;
+    margin: 15px 0;
+    overflow-x: auto;
+}
+
+.data-preview {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.data-preview pre {
+    margin: 0;
+    font-size: 11px;
+}
+
+.workflow-step {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.workflow-step.completed {
+    background: #d4edda;
+    border-left: 3px solid #28a745;
+}
+
+.workflow-step.paused {
+    background: #fff3cd;
+    border-left: 3px solid #ffc107;
+}
+
+.step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.step-icon.zapier {
+    background: #ff4a00;
+    color: white;
+}
+
+.step-icon.n8n {
+    background: #6c5ce7;
+    color: white;
+}
+
+.step-icon.ai {
+    background: #667eea;
+    color: white;
+}
+
+.zapier-webhook {
+    background: #ff4a00;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 11px;
+    margin: 5px 0;
+}
+
+/* AI Agent Button */
+.ai-workflow-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    z-index: 1000;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.ai-workflow-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.workflow-status {
+    position: fixed;
+    bottom: 20px;
+    left: 200px;
+    background: white;
+    padding: 8px 15px;
+    border-radius: 50px;
+    font-size: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: none;
+    z-index: 1000;
+}
+
+.workflow-status.active {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #28a745;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+    100% { opacity: 1; transform: scale(1); }
+}
