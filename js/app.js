@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    // Login form
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
@@ -20,7 +19,6 @@ function setupEventListeners() {
         });
     }
     
-    // Register form
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
         registerForm.addEventListener('submit', function(e) {
@@ -43,7 +41,6 @@ function setupEventListeners() {
         });
     }
     
-    // Assessment form
     const assessmentForm = document.getElementById('assessmentForm');
     if (assessmentForm) {
         assessmentForm.addEventListener('submit', function(e) {
@@ -53,7 +50,6 @@ function setupEventListeners() {
     }
 }
 
-// Register new user
 function register(userData) {
     let users = JSON.parse(localStorage.getItem('weStudyUsers')) || [];
     
@@ -79,7 +75,6 @@ function register(userData) {
     return true;
 }
 
-// Login user
 function login(email, password) {
     const users = JSON.parse(localStorage.getItem('weStudyUsers')) || [];
     const user = users.find(u => u.email === email && u.password === password);
@@ -94,14 +89,12 @@ function login(email, password) {
     }
 }
 
-// Logout user
 function logout() {
     sessionStorage.removeItem('currentUser');
     currentUser = null;
     window.location.href = 'index.html';
 }
 
-// Check authentication
 function checkAuth() {
     const storedUser = sessionStorage.getItem('currentUser');
     if (storedUser) {
@@ -143,7 +136,6 @@ function checkAuth() {
     }
 }
 
-// Save assessment data
 function saveAssessmentData() {
     if (!currentUser) {
         alert('Please login first!');
@@ -180,7 +172,6 @@ function saveAssessmentData() {
     window.location.href = 'dashboard.html';
 }
 
-// Generate study plan
 function generateStudyPlan(assessment) {
     const subjects = assessment.subjects.split(',').map(s => s.trim());
     let sessionDuration = 45;
@@ -206,7 +197,6 @@ function generateStudyPlan(assessment) {
     };
 }
 
-// Update user count
 function updateUserCount() {
     const users = JSON.parse(localStorage.getItem('weStudyUsers')) || [];
     const userCountSpan = document.getElementById('userCount');
@@ -215,20 +205,17 @@ function updateUserCount() {
     }
 }
 
-// Load dashboard
 function loadDashboard() {
     if (!currentUser) {
         window.location.href = 'login.html';
         return;
     }
     
-    // Update welcome message
     const welcomeElement = document.querySelector('.bg-gradient-primary h2');
     if (welcomeElement) {
         welcomeElement.innerHTML = `Welcome back, ${currentUser.name}! 👋`;
     }
     
-    // Update learning style display
     if (currentUser.learningProfile) {
         const styleElement = document.getElementById('learningStyleDisplay');
         if (styleElement) {
@@ -237,11 +224,11 @@ function loadDashboard() {
         }
     }
     
-    // Update study plans
     const studyPlansContainer = document.getElementById('studyPlansContainer');
     if (studyPlansContainer) {
         const plans = currentUser.studyPlans || [];
-        document.getElementById('activePlans').textContent = plans.length;
+        const activePlansSpan = document.getElementById('activePlans');
+        if (activePlansSpan) activePlansSpan.textContent = plans.length;
         
         if (plans.length === 0) {
             studyPlansContainer.innerHTML = `
@@ -264,7 +251,6 @@ function loadDashboard() {
     }
 }
 
-// View study plan
 function viewStudyPlan(planId) {
     const plan = currentUser.studyPlans.find(p => p.id === planId);
     if (plan) {
@@ -273,7 +259,6 @@ function viewStudyPlan(planId) {
     }
 }
 
-// Load study plan detail
 function loadStudyPlanDetail() {
     const planData = localStorage.getItem('currentStudyPlan');
     if (!planData) {
@@ -283,9 +268,14 @@ function loadStudyPlanDetail() {
     
     const plan = JSON.parse(planData);
     
-    document.getElementById('planTitle').innerHTML = `Study Plan - ${new Date(plan.generatedAt).toLocaleDateString()}`;
-    document.getElementById('planSummary').innerHTML = plan.summary;
-    document.getElementById('sessionDuration').innerHTML = plan.sessionDuration;
+    const titleElement = document.getElementById('planTitle');
+    if (titleElement) titleElement.innerHTML = `Study Plan - ${new Date(plan.generatedAt).toLocaleDateString()}`;
+    
+    const summaryElement = document.getElementById('planSummary');
+    if (summaryElement) summaryElement.innerHTML = plan.summary;
+    
+    const durationElement = document.getElementById('sessionDuration');
+    if (durationElement) durationElement.innerHTML = plan.sessionDuration;
     
     const techniquesList = document.getElementById('techniquesList');
     if (techniquesList) {
@@ -300,3 +290,5 @@ window.logout = logout;
 window.viewStudyPlan = viewStudyPlan;
 window.loadDashboard = loadDashboard;
 window.loadStudyPlanDetail = loadStudyPlanDetail;
+window.checkAuth = checkAuth;
+window.updateUserCount = updateUserCount;

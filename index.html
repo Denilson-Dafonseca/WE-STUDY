@@ -8,157 +8,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-
-<style>
-.ai-agent-panel {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-}
-
-.ai-agent-toggle {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    position: relative;
-}
-
-.pride-badge {
-    position: absolute;
-    bottom: -5px;
-    right: -5px;
-    background: #ff6b6b;
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 10px;
-    font-weight: bold;
-}
-
-.ai-agent-window {
-    position: fixed;
-    bottom: 100px;
-    right: 20px;
-    width: 450px;
-    max-width: 90vw;
-    height: 650px;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
-    z-index: 999;
-}
-
-.ai-agent-window.active {
-    display: flex;
-}
-
-.ai-agent-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.ai-agent-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-    background: #f7f9fc;
-}
-
-.message {
-    margin-bottom: 15px;
-    animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.message.ai {
-    display: flex;
-    gap: 10px;
-}
-
-.message.ai .avatar {
-    width: 35px;
-    height: 35px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-}
-
-.message.ai .content {
-    flex: 1;
-    background: white;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.message.user {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.message.user .content {
-    background: #667eea;
-    color: white;
-    padding: 10px;
-    border-radius: 10px;
-    max-width: 70%;
-}
-
-.ai-agent-input {
-    padding: 15px;
-    border-top: 1px solid #dee2e6;
-    display: flex;
-    gap: 10px;
-}
-
-.ai-agent-input input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
-}
-
-.ai-agent-input button {
-    padding: 8px 15px;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-</style>
-    
 </head>
 <body>
-    <!-- Navigation -->
-    <nav style="background: Blue" class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="index.html">
                 <i class="fas fa-brain me-2"></i>
@@ -196,44 +48,7 @@
         </div>
     </nav>
 
-<!-- AI Agent Floating Chat Button -->
-<div class="ai-agent-panel">
-    <button class="ai-agent-toggle" id="aiAgentToggle">
-        <i class="fas fa-robot"></i>
-        <span class="pride-badge">PRIDE</span>
-    </button>
-    
-    <div class="ai-agent-window" id="aiAgentWindow">
-        <div class="ai-agent-header">
-            <h3><i class="fas fa-shield-alt me-2"></i>We Study AI - PRIDE Framework</h3>
-            <button class="ai-agent-close" id="aiAgentClose">&times;</button>
-        </div>
-        <div class="ai-agent-messages" id="aiAgentMessages">
-            <div class="message ai">
-                <div class="avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="content">
-                    <strong>Welcome to PRIDE-Governed AI!</strong><br><br>
-                    This system follows ethical AI principles:<br>
-                    • <strong>P</strong>ause Points - Human review required<br>
-                    • <strong>R</strong>eview Cadence - Regular bias audits<br>
-                    • <strong>I</strong>nterpretability - Plain language explanations<br>
-                    • <strong>D</strong>isagreement Rights - No penalty for overrides<br>
-                    • <strong>E</strong>lders Council - Diverse human governance<br><br>
-                    How can I assist you today?
-                </div>
-            </div>
-        </div>
-        <div class="ai-agent-input">
-            <input type="text" id="aiMessageInput" placeholder="Ask about PRIDE framework or start a workflow...">
-            <button id="sendMessage">Send</button>
-        </div>
-    </div>
-</div>    
-
     <main>
-        <!-- Hero Section -->
         <section class="hero-section">
             <div class="container">
                 <div class="row align-items-center min-vh-100">
@@ -283,7 +98,6 @@
             </div>
         </section>
 
-        <!-- Features Section -->
         <section class="features-section py-5">
             <div class="container">
                 <div class="text-center mb-5">
@@ -323,89 +137,6 @@
             </div>
         </section>
 
-        <!-- Learning Styles Section -->
-        <section class="learning-styles-section py-5 bg-light">
-            <div class="container">
-                <div class="text-center mb-5">
-                    <h2 class="fw-bold mb-3">Personalized for Your Learning Style</h2>
-                    <p class="lead text-muted">We support all types of learners</p>
-                </div>
-                
-                <div class="row g-4">
-                    <div class="col-md-2 col-6">
-                        <div class="style-card text-center p-3">
-                            <i class="fas fa-eye fa-2x mb-2"></i>
-                            <h6>Visual</h6>
-                        </div>
-                    </div>
-                    <div class="col-md-2 col-6">
-                        <div class="style-card text-center p-3">
-                            <i class="fas fa-headphones fa-2x mb-2"></i>
-                            <h6>Auditory</h6>
-                        </div>
-                    </div>
-                    <div class="col-md-2 col-6">
-                        <div class="style-card text-center p-3">
-                            <i class="fas fa-book fa-2x mb-2"></i>
-                            <h6>Reading/Writing</h6>
-                        </div>
-                    </div>
-                    <div class="col-md-2 col-6">
-                        <div class="style-card text-center p-3">
-                            <i class="fas fa-hand-paper fa-2x mb-2"></i>
-                            <h6>Kinesthetic</h6>
-                        </div>
-                    </div>
-                    <div class="col-md-2 col-6">
-                        <div class="style-card text-center p-3">
-                            <i class="fas fa-adjust fa-2x mb-2"></i>
-                            <h6>Mixed</h6>
-                        </div>
-                    </div>
-                    <div class="col-md-2 col-6">
-                        <div class="style-card text-center p-3">
-                            <i class="fas fa-chart-pie fa-2x mb-2"></i>
-                            <h6>Custom</h6>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Impact Section -->
-        <section class="impact-section py-5">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-6 mb-4 mb-lg-0">
-                        <h2 class="fw-bold mb-4">Making a Difference in Namibia</h2>
-                        <p class="mb-3">Despite a 95.6% youth literacy rate, many Namibian learners struggle with effective study techniques. We Study bridges this gap by teaching <strong>how to learn</strong>, not just what to learn.</p>
-                        <div class="impact-stats mt-4">
-                            <div class="mb-3">
-                                <i class="fas fa-graduation-cap text-primary me-2"></i>
-                                <strong>Empowering Learners:</strong> Personalized strategies for every student
-                            </div>
-                            <div class="mb-3">
-                                <i class="fas fa-mobile-alt text-primary me-2"></i>
-                                <strong>Mobile-First Design:</strong> Optimized for smartphone learning
-                            </div>
-                            <div class="mb-3">
-                                <i class="fas fa-chalkboard-user text-primary me-2"></i>
-                                <strong>Complement, Not Replace:</strong> Supporting teachers and tutors
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="bg-primary text-white p-4 rounded-4">
-                            <i class="fas fa-quote-left fa-2x mb-3 opacity-50"></i>
-                            <p class="fs-5 mb-3">"Many learners struggle not because they lack intelligence, but because they've never been taught how to study effectively."</p>
-                            <p class="mb-0 fw-bold">— We Study Founding Philosophy</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Call to Action -->
         <section class="cta-section py-5 bg-gradient-primary">
             <div class="container text-center">
                 <h2 class="fw-bold mb-3">Ready to Transform Your Learning?</h2>
@@ -415,7 +146,6 @@
         </section>
     </main>
 
-    <!-- Footer -->
     <footer class="footer mt-auto">
         <div class="container">
             <div class="row">
@@ -426,30 +156,61 @@
                 <div class="col-md-4 mb-3">
                     <h5>Quick Links</h5>
                     <ul class="list-unstyled">
-                        <li><a href="index.html" class="text-decoration-none">Home</a></li>
-                        <li><a href="about.html" class="text-decoration-none">About Us</a></li>
-                        <li><a href="register.html" class="text-decoration-none">Get Started</a></li>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="register.html">Get Started</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4 mb-3">
                     <h5>Connect With Us</h5>
                     <div class="social-links">
-                        <a href="#" class="me-3"><i class="fab fa-facebook fa-lg"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-twitter fa-lg"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-linkedin fa-lg"></i></a>
-                        <a href="#"><i class="fab fa-github fa-lg"></i></a>
+                        <a href="#"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#"><i class="fab fa-linkedin fa-lg"></i></a>
                     </div>
-                    <p class="mt-3 small">&copy; 2026 We Study. Empowering Namibian learners through AI.</p>
+                    <p class="mt-3 small">&copy; 2024 We Study. Empowering Namibian learners through AI.</p>
                 </div>
             </div>
         </div>
     </footer>
 
+    <!-- AI Agent Panel -->
+    <div class="ai-agent-panel">
+        <button class="ai-agent-toggle" id="aiAgentToggle">
+            <i class="fas fa-robot"></i>
+            <span class="pride-badge">PRIDE</span>
+        </button>
+        
+        <div class="ai-agent-window" id="aiAgentWindow">
+            <div class="ai-agent-header">
+                <h3><i class="fas fa-shield-alt me-2"></i>We Study AI - PRIDE Framework</h3>
+                <button class="ai-agent-close" id="aiAgentClose">&times;</button>
+            </div>
+            <div class="ai-agent-messages" id="aiAgentMessages">
+                <div class="message ai">
+                    <div class="avatar"><i class="fas fa-robot"></i></div>
+                    <div class="content">
+                        <strong>Welcome to PRIDE-Governed AI!</strong><br><br>
+                        This system follows ethical AI principles:<br>
+                        • <strong>P</strong>ause Points - Human review required<br>
+                        • <strong>R</strong>eview Cadence - Regular bias audits<br>
+                        • <strong>I</strong>nterpretability - Plain language explanations<br>
+                        • <strong>D</strong>isagreement Rights - No penalty for overrides<br>
+                        • <strong>E</strong>lders Council - Diverse human governance
+                    </div>
+                </div>
+            </div>
+            <div class="ai-agent-input">
+                <input type="text" id="aiMessageInput" placeholder="Type 'start workflow' to begin...">
+                <button id="sendMessage">Send</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/app.js"></script>
-    <script src="ai-agent.js"></script>
+    <script src="js/ai-agent.js"></script>
     <script>
-        // Check authentication on page load
         checkAuth();
         updateUserCount();
     </script>
