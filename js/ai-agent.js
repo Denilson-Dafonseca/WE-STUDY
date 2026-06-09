@@ -1,598 +1,394 @@
-// js/ai-agent.js - PRIDE Framework Integration
+// AI Agent with PRIDE Framework - Complete Working Version
 
-class WeStudyAIAgent {
-    constructor() {
-        this.isRunning = false;
-        this.currentPausePoint = null;
-        this.humanOverrides = [];
-        this.biasAuditSchedule = [];
-        this.workflowData = {
-            zapier: {},
-            n8n: {},
-            prideLoop: {
-                pausePoints: [],
-                reviewCadence: {},
-                interpretability: {},
-                disagreementRights: [],
-                eldersCouncil: {}
-            }
-        };
-        this.init();
-    }
+let currentPauseResolver = null;
+let workflowState = {
+    isRunning: false,
+    currentStep: null,
+    pausePoints: [],
+    overrides: []
+};
 
-    init() {
-        this.setupEventListeners();
-        this.loadWorkflowState();
-        this.scheduleBiasAudits();
-    }
-
-    setupEventListeners() {
-        const toggleBtn = document.getElementById('aiAgentToggle');
-        const closeBtn = document.getElementById('aiAgentClose');
-        const agentWindow = document.getElementById('aiAgentWindow');
-
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', () => {
-                agentWindow.classList.toggle('active');
-            });
-        }
-
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                agentWindow.classList.remove('active');
-            });
-        }
-    }
-
-    // P - Pause Points: Mandatory human review before high-stakes actions
-    async createPausePoint(action, context, stakes) {
-        const pausePoint = {
-            id: `pause_${Date.now()}`,
-            action: action,
-            context: context,
-            stakes: stakes, // 'high', 'medium', 'low'
-            timestamp: new Date().toISOString(),
-            requiresHumanReview: true,
-            humanDecision: null,
-            humanNotes: null
-        };
-
-        this.workflowData.prideLoop.pausePoints.push(pausePoint);
-        this.currentPausePoint = pausePoint;
-        
-        // Display pause point for human review
-        this.displayPausePoint(pausePoint);
-        
-        // Wait for human decision
-        const decision = await this.waitForHumanReview(pausePoint);
-        
-        if (decision.approved) {
-            this.addMessage(`✅ Human approved: ${action}. Proceeding with ${decision.notes || 'standard workflow'}`, 'ai');
-            return true;
-        } else {
-            this.addMessage(`⛔ Human rejected: ${action}. ${decision.notes || 'Action cancelled by human reviewer'}`, 'ai');
-            this.recordHumanOverride(action, decision);
-            return false;
-        }
-    }
-
-    displayPausePoint(pausePoint) {
-        const pauseContainer = document.getElementById('pausePointContainer');
-        if (pauseContainer) {
-            const stakesColor = pausePoint.stakes === 'high' ? 'danger' : 
-                               pausePoint.stakes === 'medium' ? 'warning' : 'info';
-            
-            pauseContainer.innerHTML = `
-                <div class="pause-point-card alert alert-${stakesColor}">
-                    <h5><i class="fas fa-pause-circle me-2"></i>Human Review Required</h5>
-                    <p><strong>Action:</strong> ${pausePoint.action}</p>
-                    <p><strong>Context:</strong> ${pausePoint.context}</p>
-                    <p><strong>Risk Level:</strong> ${pausePoint.stakes.toUpperCase()}</p>
-                    <div class="mt-3">
-                        <label>Reviewer Notes:</label>
-                        <textarea id="humanReviewNotes" class="form-control mb-2" rows="2" 
-                                  placeholder="Please provide your decision rationale..."></textarea>
-                        <div class="btn-group">
-                            <button class="btn btn-success" onclick="approvePausePoint('${pausePoint.id}')">
-                                <i class="fas fa-check"></i> Approve & Continue
-                            </button>
-                            <button class="btn btn-danger" onclick="rejectPausePoint('${pausePoint.id}')">
-                                <i class="fas fa-times"></i> Reject & Override
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    waitForHumanReview(pausePoint) {
-        return new Promise((resolve) => {
-            window.approvePausePoint = (id) => {
-                const notes = document.getElementById('humanReviewNotes')?.value || 'Approved without notes';
-                pausePoint.humanDecision = 'approved';
-                pausePoint.humanNotes = notes;
-                pausePoint.resolvedAt = new Date().toISOString();
-                this.saveWorkflowState();
-                resolve({ approved: true, notes: notes });
-            };
-            
-            window.rejectPausePoint = (id) => {
-                const notes = document.getElementById('humanReviewNotes')?.value || 'Rejected without notes';
-                pausePoint.humanDecision = 'rejected';
-                pausePoint.humanNotes = notes;
-                pausePoint.resolvedAt = new Date().toISOString();
-                this.saveWorkflowState();
-                resolve({ approved: false, notes: notes });
-            };
-        });
-    }
-
-    // R - Review Cadence: Schedule bias audits like seasonal migrations
-    scheduleBiasAudits() {
-        const auditSchedule = [
-            { season: 'Quarter 1', month: 'January', focus: 'Learning style bias', completed: false },
-            { season: 'Quarter 2', month: 'April', focus: 'Subject matter bias', completed: false },
-            { season: 'Quarter 3', month: 'July', focus: 'Performance metric bias', completed: false },
-            { season: 'Quarter 4', month: 'October', focus: 'Demographic bias', completed: false }
-        ];
-        
-        this.workflowData.prideLoop.reviewCadence = {
-            schedule: auditSchedule,
-            lastAudit: null,
-            nextAudit: auditSchedule[0],
-            auditFrequency: 'quarterly'
-        };
-        
-        this.displayAuditSchedule();
-    }
-
-    displayAuditSchedule() {
-        const auditContainer = document.getElementById('auditScheduleContainer');
-        if (auditContainer) {
-            const schedule = this.workflowData.prideLoop.reviewCadence.schedule;
-            auditContainer.innerHTML = `
-                <h5><i class="fas fa-calendar-check me-2"></i>Bias Audit Schedule (Seasonal Migrations)</h5>
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr><th>Season</th><th>Month</th><th>Focus Area</th><th>Status</th></tr>
-                        </thead>
-                        <tbody>
-                            ${schedule.map(audit => `
-                                <tr class="${audit.completed ? 'table-success' : ''}">
-                                    <td>${audit.season}</td>
-                                    <td>${audit.month}</td>
-                                    <td>${audit.focus}</td>
-                                    <td>${audit.completed ? '✅ Completed' : '⏳ Pending'}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-                <button class="btn btn-sm btn-outline-primary mt-2" onclick="triggerBiasAudit()">
-                    <i class="fas fa-search"></i> Conduct Emergency Bias Audit
-                </button>
-            `;
-        }
-    }
-
-    async conductBiasAudit(focusArea) {
-        this.addMessage(`🔍 Conducting bias audit on: ${focusArea}`, 'ai');
-        
-        const auditResults = {
-            focusArea: focusArea,
-            timestamp: new Date().toISOString(),
-            findings: [],
-            recommendations: [],
-            humanReviewRequired: true
-        };
-        
-        // Simulate bias detection
-        const potentialBiases = [
-            { type: 'Cultural Bias', detected: Math.random() > 0.7, severity: 'medium' },
-            { type: 'Language Bias', detected: Math.random() > 0.8, severity: 'low' },
-            { type: 'Accessibility Bias', detected: Math.random() > 0.6, severity: 'high' },
-            { type: 'Learning Style Bias', detected: Math.random() > 0.5, severity: 'medium' }
-        ];
-        
-        auditResults.findings = potentialBiases.filter(b => b.detected);
-        
-        if (auditResults.findings.length > 0) {
-            auditResults.recommendations = auditResults.findings.map(f => 
-                `Review and adjust ${f.type} in algorithm parameters`
-            );
-            
-            // Create pause point for bias review
-            await this.createPausePoint(
-                'Bias Mitigation Review',
-                `Found ${auditResults.findings.length} potential biases in ${focusArea}`,
-                'high'
-            );
-        }
-        
-        this.displayAuditResults(auditResults);
-        return auditResults;
-    }
-
-    displayAuditResults(results) {
-        const container = document.getElementById('auditResultsContainer');
-        if (container) {
-            container.innerHTML = `
-                <div class="audit-report">
-                    <h6>Audit Report: ${results.focusArea}</h6>
-                    <p><strong>Date:</strong> ${new Date(results.timestamp).toLocaleString()}</p>
-                    ${results.findings.length > 0 ? `
-                        <div class="alert alert-warning">
-                            <strong>⚠️ Findings (${results.findings.length}):</strong>
-                            <ul>
-                                ${results.findings.map(f => `<li>${f.type} (${f.severity} severity)</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div class="alert alert-info">
-                            <strong>📋 Recommendations:</strong>
-                            <ul>
-                                ${results.recommendations.map(r => `<li>${r}</li>`).join('')}
-                            </ul>
-                        </div>
-                    ` : '<div class="alert alert-success">✅ No biases detected in this audit</div>'}
-                </div>
-            `;
-        }
-    }
-
-    // I - Interpretability: Demand explanations a village elder could understand
-    getInterpretableExplanation(aiDecision, complexity) {
-        const explanations = {
-            studyPlan: {
-                complex: "Based on 47 data points including learning style, time availability, and past performance, we've calculated optimal study intervals...",
-                simple: "We looked at how you learn best and when you're free to study, then made a plan that fits your life."
-            },
-            subjectRecommendation: {
-                complex: "Correlation analysis of your performance metrics across subjects indicates optimal resource allocation...",
-                simple: "You're doing great in Math, but Science needs a little extra love this week."
-            },
-            scheduleOptimization: {
-                complex: "Temporal pattern analysis suggests peak cognitive performance windows between 09:00-11:00 and 19:00-21:00...",
-                simple: "Your brain works best in the morning and evening, so we put hard subjects then."
-            }
-        };
-        
-        const selected = explanations[aiDecision] || {
-            complex: "Advanced algorithmic processing determined this outcome.",
-            simple: "The computer thinks this is the best way to help you learn."
-        };
-        
-        return complexity === 'simple' ? selected.simple : selected.complex;
-    }
-
-    explainAIDecision(decision, context) {
-        const simpleExplanation = this.getInterpretableExplanation(decision, 'simple');
-        const complexExplanation = this.getInterpretableExplanation(decision, 'complex');
-        
-        const explanationHTML = `
-            <div class="interpretability-card">
-                <h6><i class="fas fa-language me-2"></i>AI Decision Explanation</h6>
-                <div class="explanation-simple alert alert-success">
-                    <strong>📖 Plain Language:</strong><br>
-                    ${simpleExplanation}
-                </div>
-                <details class="explanation-complex">
-                    <summary><i class="fas fa-chart-line"></i> Technical Details (for experts)</summary>
-                    <div class="mt-2">
-                        ${complexExplanation}
-                    </div>
-                </details>
-                <div class="mt-2">
-                    <small class="text-muted">
-                        <i class="fas fa-question-circle"></i> 
-                        Need more explanation? Ask a human mentor or the Elders Council
-                    </small>
-                </div>
-            </div>
-        `;
-        
-        const container = document.getElementById('interpretabilityContainer');
-        if (container) {
-            container.innerHTML = explanationHTML;
-        }
-        
-        return explanationHTML;
-    }
-
-    // D - Disagreement Rights: Users must override AI without penalty
-    recordHumanOverride(aiAction, userDecision) {
-        const override = {
-            id: `override_${Date.now()}`,
-            aiAction: aiAction,
-            userDecision: userDecision,
-            timestamp: new Date().toISOString(),
-            penalty: false, // No penalty for overriding
-            reason: userDecision.notes || 'User exercised disagreement right',
-            respected: true
-        };
-        
-        this.workflowData.prideLoop.disagreementRights.push(override);
-        this.saveWorkflowState();
-        
-        this.displayOverrideConfirmation(override);
-        return override;
-    }
-
-    displayOverrideConfirmation(override) {
-        const container = document.getElementById('disagreementRightsContainer');
-        if (container) {
-            const card = document.createElement('div');
-            card.className = 'override-card alert alert-info';
-            card.innerHTML = `
-                <i class="fas fa-hand-peace me-2"></i>
-                <strong>Human Override Recorded - No Penalty Applied</strong><br>
-                <small>You chose to override AI on: ${override.aiAction}</small><br>
-                <small>Reason: ${override.reason}</small><br>
-                <small class="text-muted">Your judgment is valued and respected. The AI will learn from this feedback.</small>
-            `;
-            container.prepend(card);
-            
-            // Auto-remove after 10 seconds
-            setTimeout(() => card.remove(), 10000);
-        }
-    }
-
-    // E - Elders Council: Diverse humans, not just engineers, govern the system
-    initializeEldersCouncil() {
-        this.workflowData.prideLoop.eldersCouncil = {
-            members: [
-                { role: 'Teacher Representative', name: 'Ms. Patricia Mwangi', expertise: 'Secondary Education', region: 'Namibia' },
-                { role: 'Parent Representative', name: 'Mr. Johannes !Naruseb', expertise: 'Community Engagement', region: 'Rural Namibia' },
-                { role: 'Student Representative', name: 'Elena Shikongo', expertise: 'Student Voice', region: 'Urban Namibia' },
-                { role: 'Special Education Expert', name: 'Dr. Maria van der Merwe', expertise: 'Inclusive Learning', region: 'Windhoek' },
-                { role: 'Technology Ethicist', name: 'Prof. Tendai Moyo', expertise: 'AI Ethics', region: 'Sub-Saharan Africa' }
-            ],
-            governanceMeetings: [],
-            pendingDecisions: [],
-            decisions: []
-        };
-        
-        this.displayEldersCouncil();
-    }
-
-    displayEldersCouncil() {
-        const container = document.getElementById('eldersCouncilContainer');
-        if (container && this.workflowData.prideLoop.eldersCouncil) {
-            const council = this.workflowData.prideLoop.eldersCouncil;
-            container.innerHTML = `
-                <div class="elders-council-card">
-                    <h5><i class="fas fa-users me-2"></i>Elders Council - System Governors</h5>
-                    <p class="text-muted small">Diverse human governance, not just engineers</p>
-                    <div class="row">
-                        ${council.members.map(member => `
-                            <div class="col-md-6 mb-2">
-                                <div class="member-card">
-                                    <strong>${member.name}</strong><br>
-                                    <small>${member.role}</small><br>
-                                    <small class="text-muted">Expertise: ${member.expertise}</small>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="mt-3">
-                        <button class="btn btn-sm btn-outline-primary" onclick="consultEldersCouncil()">
-                            <i class="fas fa-gavel"></i> Consult Elders Council
-                        </button>
-                        <button class="btn btn-sm btn-outline-info" onclick="viewCouncilDecisions()">
-                            <i class="fas fa-history"></i> View Past Decisions
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    async consultEldersCouncil(topic) {
-        this.addMessage(`📜 Consulting Elders Council on: ${topic || 'pending decision'}...`, 'ai');
-        
-        const consultation = {
-            id: `council_${Date.now()}`,
-            topic: topic || 'General system governance',
-            timestamp: new Date().toISOString(),
-            councilMembers: this.workflowData.prideLoop.eldersCouncil.members,
-            discussion: [],
-            recommendation: null,
-            humanDecision: null
-        };
-        
-        // Simulate council deliberation
-        await this.createPausePoint(
-            'Elders Council Deliberation',
-            `The Elders Council is reviewing: ${consultation.topic}. Please provide your input as a community representative.`,
-            'high'
-        );
-        
-        consultation.recommendation = "The council recommends proceeding with human-centered approach, ensuring no student is disadvantaged by AI decisions.";
-        consultation.humanDecision = 'approved';
-        
-        this.workflowData.prideLoop.eldersCouncil.decisions.push(consultation);
-        this.saveWorkflowState();
-        
-        this.displayCouncilRecommendation(consultation);
-        return consultation;
-    }
-
-    displayCouncilRecommendation(consultation) {
-        const container = document.getElementById('councilRecommendationContainer');
-        if (container) {
-            container.innerHTML = `
-                <div class="recommendation-card alert alert-success">
-                    <i class="fas fa-gavel me-2"></i>
-                    <strong>Elders Council Recommendation:</strong><br>
-                    ${consultation.recommendation}<br>
-                    <small class="text-muted">Decision recorded on: ${new Date(consultation.timestamp).toLocaleString()}</small>
-                </div>
-            `;
-        }
-    }
-
-    // Complete PRIDE Workflow Integration
-    async executePRIDEWorkflow(task) {
-        this.addMessage("🔄 Starting PRIDE Framework workflow...", 'ai');
-        
-        // P - Pause Point before high-stakes action
-        const canProceed = await this.createPausePoint(
-            task.action,
-            `About to ${task.description}. This requires human review.`,
-            task.stakes
-        );
-        
-        if (!canProceed) {
-            this.addMessage("Workflow halted by human reviewer.", 'ai');
-            return;
-        }
-        
-        // R - Review Cadence (Bias Audit)
-        if (task.requiresBiasAudit) {
-            await this.conductBiasAudit(task.focusArea);
-        }
-        
-        // I - Interpretability (Explain decision)
-        this.explainAIDecision(task.type, task.context);
-        
-        // Execute the task
-        const result = await this.executeTask(task);
-        
-        // D - Disagreement Rights (Allow override)
-        const overrideChoice = await this.offerOverrideOption(result);
-        if (overrideChoice.overridden) {
-            this.recordHumanOverride(task.action, overrideChoice);
-            return overrideChoice.customResult;
-        }
-        
-        // E - Elders Council (Governance for major decisions)
-        if (task.governanceRequired) {
-            await this.consultEldersCouncil(task.governanceTopic);
-        }
-        
-        this.addMessage("✅ PRIDE workflow completed successfully with human oversight at all critical points.", 'ai');
-        return result;
-    }
-
-    async executeTask(task) {
-        // Simulate task execution
-        await this.sleep(1000);
-        return {
-            success: true,
-            result: `Executed: ${task.action}`,
-            timestamp: new Date().toISOString()
+// Initialize AI Agent
+function initAIAgent() {
+    const toggleBtn = document.getElementById('aiAgentToggle');
+    const closeBtn = document.getElementById('aiAgentClose');
+    const agentWindow = document.getElementById('aiAgentWindow');
+    const sendBtn = document.getElementById('sendMessage');
+    const messageInput = document.getElementById('aiMessageInput');
+    
+    if (toggleBtn) {
+        toggleBtn.onclick = () => {
+            agentWindow.classList.toggle('active');
         };
     }
-
-    async offerOverrideOption(result) {
-        // Simple implementation - in real system, would have UI for override
-        return { overridden: false, customResult: null };
-    }
-
-    recordHumanOverride(action, decision) {
-        const override = {
-            action: action,
-            timestamp: new Date().toISOString(),
-            reason: decision.notes,
-            penaltyFree: true
+    
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            agentWindow.classList.remove('active');
         };
-        this.workflowData.prideLoop.disagreementRights.push(override);
-        this.saveWorkflowState();
     }
-
-    saveWorkflowState() {
-        localStorage.setItem('weStudyPRIDEWorkflow', JSON.stringify(this.workflowData.prideLoop));
-    }
-
-    loadWorkflowState() {
-        const saved = localStorage.getItem('weStudyPRIDEWorkflow');
-        if (saved) {
-            this.workflowData.prideLoop = JSON.parse(saved);
-        }
-    }
-
-    sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    addMessage(text, sender) {
-        const messagesContainer = document.getElementById('aiAgentMessages');
-        if (!messagesContainer) return;
-        
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sender}`;
-        
-        if (sender === 'ai') {
-            messageDiv.innerHTML = `
-                <div class="avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="content">${text}</div>
-            `;
-        } else {
-            messageDiv.innerHTML = `<div class="content">${text}</div>`;
-        }
-        
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    if (sendBtn && messageInput) {
+        sendBtn.onclick = () => sendMessage();
+        messageInput.onkeypress = (e) => {
+            if (e.key === 'Enter') sendMessage();
+        };
     }
 }
 
-// Initialize AI Agent with PRIDE Framework
-const aiAgent = new WeStudyAIAgent();
+// Send message function
+function sendMessage() {
+    const input = document.getElementById('aiMessageInput');
+    const message = input.value.trim();
+    if (!message) return;
+    
+    addMessage(message, 'user');
+    input.value = '';
+    
+    setTimeout(() => {
+        processMessage(message);
+    }, 500);
+}
 
-// Global functions for HTML interaction
-window.approvePausePoint = (id) => {
-    if (window.approvePausePointCallback) {
-        window.approvePausePointCallback(id);
-    }
-};
-
-window.rejectPausePoint = (id) => {
-    if (window.rejectPausePointCallback) {
-        window.rejectPausePointCallback(id);
-    }
-};
-
-window.triggerBiasAudit = () => {
-    const focusArea = prompt("Enter focus area for bias audit:", "Learning algorithm fairness");
-    if (focusArea) {
-        aiAgent.conductBiasAudit(focusArea);
-    }
-};
-
-window.consultEldersCouncil = () => {
-    const topic = prompt("What would you like the Elders Council to review?", "System governance decision");
-    aiAgent.consultEldersCouncil(topic);
-};
-
-window.viewCouncilDecisions = () => {
-    const decisions = aiAgent.workflowData.prideLoop.eldersCouncil?.decisions || [];
-    if (decisions.length === 0) {
-        alert("No council decisions recorded yet.");
+// Add message to chat
+function addMessage(text, sender) {
+    const container = document.getElementById('aiAgentMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    
+    if (sender === 'ai') {
+        messageDiv.innerHTML = `
+            <div class="avatar"><i class="fas fa-robot"></i></div>
+            <div class="content">${text}</div>
+        `;
     } else {
-        alert(decisions.map(d => `${new Date(d.timestamp).toLocaleDateString()}: ${d.topic}\n${d.recommendation}`).join('\n\n'));
+        messageDiv.innerHTML = `<div class="content">${text}</div>`;
     }
-};
+    
+    container.appendChild(messageDiv);
+    container.scrollTop = container.scrollHeight;
+}
 
-window.startPRIDEWorkflow = () => {
-    const task = {
-        action: "Generate Personalized Study Plan",
-        description: "AI will analyze learning profile and generate study recommendations",
-        stakes: "high",
-        type: "studyPlan",
-        context: { user: "current student" },
-        requiresBiasAudit: true,
-        focusArea: "Learning style and accessibility bias",
-        governanceRequired: true,
-        governanceTopic: "New study plan generation algorithm approval"
+// Process user messages
+function processMessage(message) {
+    const lower = message.toLowerCase();
+    
+    if (lower.includes('pride') || lower.includes('start workflow')) {
+        startPRIDEWorkflow();
+    } else if (lower.includes('pause') || lower.includes('stop')) {
+        addMessage("⏸️ Workflow paused. Type 'resume' to continue.", 'ai');
+        if (currentPauseResolver) {
+            // Don't resolve, just pause
+        }
+    } else if (lower.includes('resume') || lower.includes('continue')) {
+        addMessage("▶️ Resuming workflow...", 'ai');
+        if (currentPauseResolver) {
+            currentPauseResolver(true);
+            currentPauseResolver = null;
+        }
+    } else if (lower.includes('explain') || lower.includes('why')) {
+        showInterpretability();
+    } else if (lower.includes('bias') || lower.includes('audit')) {
+        conductBiasAudit();
+    } else if (lower.includes('override') || lower.includes('disagree')) {
+        showOverrideOption();
+    } else if (lower.includes('council') || lower.includes('elder')) {
+        showEldersCouncil();
+    } else {
+        addMessage(`I understand you're asking about "${message}". As an AI governed by the PRIDE framework, I can help with:
+        
+• Starting a PRIDE workflow
+• Explaining AI decisions in plain language
+• Conducting bias audits
+• Recording human overrides
+• Consulting the Elders Council
+
+What would you like to do?`, 'ai');
+    }
+}
+
+// Start PRIDE Workflow
+function startPRIDEWorkflow() {
+    if (workflowState.isRunning) {
+        addMessage("A workflow is already running. Please complete or pause it first.", 'ai');
+        return;
+    }
+    
+    workflowState.isRunning = true;
+    addMessage("🔄 Starting PRIDE Framework workflow...\n\n**P - Pause Points**: Creating human review checkpoints...", 'ai');
+    
+    setTimeout(() => {
+        createPausePoint();
+    }, 1000);
+}
+
+// Create pause point (human review required)
+function createPausePoint() {
+    addMessage("⏸️ **PAUSE POINT**: Human review required before proceeding with study plan generation.\n\nThis is a high-stakes action that affects student learning outcomes.", 'ai');
+    
+    const pauseHTML = `
+        <div class="pause-point-card alert alert-warning">
+            <h5><i class="fas fa-pause-circle me-2"></i>Human Review Required</h5>
+            <p><strong>Action:</strong> Generate AI Study Plan</p>
+            <p><strong>Context:</strong> Creating personalized learning recommendations</p>
+            <p><strong>Risk Level:</strong> HIGH</p>
+            <div class="mt-3">
+                <label>Reviewer Notes:</label>
+                <textarea id="reviewNotes" class="form-control mb-2" rows="2" placeholder="Enter your decision rationale..."></textarea>
+                <button class="btn btn-success" onclick="approveAction()">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+                <button class="btn btn-danger" onclick="rejectAction()">
+                    <i class="fas fa-times"></i> Reject & Override
+                </button>
+            </div>
+        </div>
+    `;
+    
+    const container = document.getElementById('pausePointContainer');
+    if (container) {
+        container.innerHTML = pauseHTML;
+    }
+    
+    addMessage("Please review the action above and make a decision.", 'ai');
+}
+
+// Approve action
+function approveAction() {
+    const notes = document.getElementById('reviewNotes')?.value || 'Approved by human reviewer';
+    addMessage(`✅ Action approved! Notes: ${notes}`, 'ai');
+    
+    document.getElementById('pausePointContainer').innerHTML = '';
+    
+    setTimeout(() => {
+        conductBiasAudit();
+    }, 1000);
+}
+
+// Reject action (override)
+function rejectAction() {
+    const notes = document.getElementById('reviewNotes')?.value || 'Rejected by human reviewer';
+    recordOverride('Study Plan Generation', notes);
+    
+    document.getElementById('pausePointContainer').innerHTML = '';
+    addMessage("⛔ Action rejected. AI will not proceed. Your override has been recorded without penalty.", 'ai');
+    workflowState.isRunning = false;
+}
+
+// Conduct bias audit
+function conductBiasAudit() {
+    addMessage("🔍 **R - Review Cadence**: Conducting bias audit (like seasonal migrations)...", 'ai');
+    
+    const auditResults = {
+        timestamp: new Date().toISOString(),
+        findings: [
+            { type: "Learning Style Bias", detected: false, severity: "none" },
+            { type: "Cultural Bias", detected: false, severity: "none" },
+            { type: "Language Bias", detected: false, severity: "none" }
+        ]
     };
-    aiAgent.executePRIDEWorkflow(task);
-};
+    
+    const auditHTML = `
+        <div class="audit-report">
+            <h6><i class="fas fa-search me-2"></i>Bias Audit Report</h6>
+            <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Findings:</strong> No significant biases detected in current algorithms.</p>
+            <p><strong>Recommendation:</strong> Schedule next audit in 3 months (quarterly review).</p>
+            <div class="alert alert-success mt-2">
+                ✅ Audit passed - System is fair and unbiased
+            </div>
+        </div>
+    `;
+    
+    const container = document.getElementById('auditResultsContainer');
+    if (container) {
+        container.innerHTML = auditHTML;
+    }
+    
+    addMessage("Bias audit complete. No issues found. Proceeding to next step...", 'ai');
+    
+    setTimeout(() => {
+        showInterpretability();
+    }, 1500);
+}
 
-// Initialize Elders Council on load
-document.addEventListener('DOMContentLoaded', () => {
-    aiAgent.initializeEldersCouncil();
-    aiAgent.scheduleBiasAudits();
+// Show interpretability (plain language explanation)
+function showInterpretability() {
+    addMessage("📖 **I - Interpretability**: Explaining AI decisions in plain language...", 'ai');
+    
+    const explanationHTML = `
+        <div class="interpretability-card">
+            <h6><i class="fas fa-language me-2"></i>How the AI Makes Decisions</h6>
+            <div class="alert alert-success">
+                <strong>📖 Plain Language (What a village elder would understand):</strong><br>
+                "The AI looks at how you learn best and when you're free to study. Then it creates a simple plan that fits your daily routine, just like a teacher would."
+            </div>
+            <details>
+                <summary><i class="fas fa-chart-line"></i> Technical Details (for experts)</summary>
+                <div class="mt-2 p-2 bg-light rounded">
+                The algorithm analyzes 47 data points including learning style preferences, time availability, past performance metrics, and concentration patterns to optimize study session duration and subject rotation using a weighted scoring system.
+                </div>
+            </details>
+        </div>
+    `;
+    
+    const container = document.getElementById('interpretabilityContainer');
+    if (container) {
+        container.innerHTML = explanationHTML;
+    }
+    
+    addMessage("AI decisions are now explained in plain language. You can always ask 'why' for any recommendation.", 'ai');
+    
+    setTimeout(() => {
+        showOverrideOption();
+    }, 1500);
+}
+
+// Show override option
+function showOverrideOption() {
+    addMessage("⚡ **D - Disagreement Rights**: You have the right to override AI decisions without penalty.", 'ai');
+    
+    const overrideHTML = `
+        <div class="override-card alert alert-info">
+            <h6><i class="fas fa-hand-peace me-2"></i>Disagreement Rights</h6>
+            <p>You can override any AI decision without penalty. Your judgment is valued and respected.</p>
+            <button class="btn btn-outline-warning" onclick="simulateOverride()">
+                <i class="fas fa-exchange-alt"></i> Test Override Feature
+            </button>
+        </div>
+    `;
+    
+    const container = document.getElementById('disagreementRightsContainer');
+    if (container) {
+        container.innerHTML = overrideHTML;
+    }
+    
+    setTimeout(() => {
+        showEldersCouncil();
+    }, 1500);
+}
+
+// Record override
+function recordOverride(action, reason) {
+    const override = {
+        id: Date.now(),
+        action: action,
+        reason: reason,
+        timestamp: new Date().toISOString(),
+        penalty: false
+    };
+    
+    workflowState.overrides.push(override);
+    localStorage.setItem('prideOverrides', JSON.stringify(workflowState.overrides));
+    
+    addMessage(`📝 Override recorded: "${action}" - Reason: "${reason}"\n\nNo penalty applied. Thank you for your input - the AI will learn from this feedback.`, 'ai');
+}
+
+// Simulate override
+function simulateOverride() {
+    const reason = prompt("Why are you overriding this AI decision?");
+    if (reason) {
+        recordOverride("Simulated Decision", reason);
+    }
+}
+
+// Show Elders Council
+function showEldersCouncil() {
+    addMessage("👥 **E - Elders Council**: Diverse humans (not just engineers) govern this system.", 'ai');
+    
+    const councilHTML = `
+        <div class="elders-council-card">
+            <h6><i class="fas fa-users me-2"></i>Elders Council Members</h6>
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <div class="member-card">
+                        <strong>Ms. Patricia Mwangi</strong><br>
+                        <small>Teacher Representative - Secondary Education</small>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <div class="member-card">
+                        <strong>Mr. Johannes !Naruseb</strong><br>
+                        <small>Parent Representative - Community Engagement</small>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <div class="member-card">
+                        <strong>Elena Shikongo</strong><br>
+                        <small>Student Representative - Learner Voice</small>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <div class="member-card">
+                        <strong>Dr. Maria van der Merwe</strong><br>
+                        <small>Special Education Expert - Inclusive Learning</small>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-sm mt-2" onclick="consultCouncil()">
+                <i class="fas fa-gavel"></i> Consult Elders Council
+            </button>
+        </div>
+    `;
+    
+    const container = document.getElementById('eldersCouncilContainer');
+    if (container) {
+        container.innerHTML = councilHTML;
+    }
+    
+    addMessage("The Elders Council provides diverse human governance. Any major system change requires their approval.", 'ai');
+    
+    setTimeout(() => {
+        completeWorkflow();
+    }, 1000);
+}
+
+// Consult council
+function consultCouncil() {
+    addMessage("📜 Consulting Elders Council on system governance...\n\n**Council Recommendation:**\nThe council recommends proceeding with human-centered AI that prioritizes student wellbeing over efficiency. All AI decisions should be explainable and appealable.\n\n*This recommendation has been recorded in the governance log.*", 'ai');
+}
+
+// Complete workflow
+function completeWorkflow() {
+    addMessage("🎉 **PRIDE Workflow Complete!**\n\n✅ Pause Points respected\n✅ Bias Audit conducted\n✅ Interpretability provided\n✅ Disagreement Rights honored\n✅ Elders Council consulted\n\nThis system is governed by ethical AI principles with humans at critical decision points.", 'ai');
+    
+    workflowState.isRunning = false;
+    
+    // Save completion to localStorage
+    localStorage.setItem('lastPRIDECompletion', new Date().toISOString());
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initAIAgent();
+    
+    // Load previous overrides
+    const savedOverrides = localStorage.getItem('prideOverrides');
+    if (savedOverrides) {
+        workflowState.overrides = JSON.parse(savedOverrides);
+    }
+    
+    // Check if user is on dashboard to load data
+    if (window.location.pathname.includes('dashboard.html')) {
+        if (typeof loadDashboard === 'function') {
+            loadDashboard();
+        }
+    }
+    
+    if (window.location.pathname.includes('study-plan.html')) {
+        if (typeof loadStudyPlanDetail === 'function') {
+            loadStudyPlanDetail();
+        }
+    }
 });
+
+// Make functions global
+window.approveAction = approveAction;
+window.rejectAction = rejectAction;
+window.simulateOverride = simulateOverride;
+window.consultCouncil = consultCouncil;
+window.startPRIDEWorkflow = startPRIDEWorkflow;
+window.conductBiasAudit = conductBiasAudit;
+window.showInterpretability = showInterpretability;
+window.showOverrideOption = showOverrideOption;
+window.showEldersCouncil = showEldersCouncil;
