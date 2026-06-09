@@ -194,16 +194,229 @@ body {
     }
 }
 
-/* Add to existing style.css */
+/* AI Agent Panel Styles - Updated with Blue Theme */
+.ai-agent-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
 
-/* PRIDE Pause Point Styles */
+.ai-agent-toggle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.ai-agent-toggle:hover {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+}
+
+.pride-badge {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background: #ff6b6b;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.ai-agent-window {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 450px;
+    max-width: 90vw;
+    height: 600px;
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 999;
+    border: 1px solid rgba(52, 152, 219, 0.3);
+}
+
+.ai-agent-window.active {
+    display: flex;
+}
+
+.ai-agent-header {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(52, 152, 219, 0.5);
+}
+
+.ai-agent-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: white;
+}
+
+.ai-agent-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+}
+
+.ai-agent-close:hover {
+    opacity: 1;
+}
+
+.ai-agent-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: rgba(15, 32, 39, 0.9);
+}
+
+.message {
+    margin-bottom: 15px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.ai {
+    display: flex;
+    gap: 10px;
+}
+
+.message.ai .avatar {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+}
+
+.message.ai .content {
+    flex: 1;
+    background: rgba(30, 60, 114, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+}
+
+.message.user {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.message.user .content {
+    background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 70%;
+}
+
+.ai-agent-input {
+    padding: 15px;
+    border-top: 1px solid rgba(52, 152, 219, 0.3);
+    display: flex;
+    gap: 10px;
+    background: rgba(15, 32, 39, 0.95);
+}
+
+.ai-agent-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid rgba(52, 152, 219, 0.5);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.ai-agent-input input::placeholder {
+    color: rgba(255,255,255,0.6);
+}
+
+.ai-agent-input input:focus {
+    outline: none;
+    border-color: #3498db;
+    background: rgba(255,255,255,0.15);
+}
+
+.ai-agent-input button {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ai-agent-input button:hover {
+    transform: scale(1.02);
+    background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+}
+
+/* Scrollbar styling for AI messages */
+.ai-agent-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ai-agent-messages::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+}
+
+.ai-agent-messages::-webkit-scrollbar-thumb {
+    background: rgba(52, 152, 219, 0.5);
+    border-radius: 3px;
+}
+
+.ai-agent-messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(52, 152, 219, 0.8);
+}
+
+/* PRIDE Pause Point Modal - Blue Theme */
 .pride-pause-container {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
     z-index: 2000;
     display: none;
     justify-content: center;
@@ -211,23 +424,55 @@ body {
 }
 
 .pride-pause-card {
-    background: white;
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 100%);
     border-radius: 20px;
     max-width: 500px;
     width: 90%;
     animation: slideIn 0.3s ease;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    border: 1px solid rgba(52, 152, 219, 0.3);
 }
 
 .pride-pause-header {
-    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     color: white;
     padding: 20px;
     border-radius: 20px 20px 0 0;
 }
 
+.pause-point-badge {
+    display: inline-block;
+    background: #ff6b6b;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.pride-pause-header h3 {
+    margin: 0;
+    color: white;
+}
+
 .pride-pause-body {
     padding: 25px;
+    color: white;
+}
+
+.pride-pause-body label {
+    color: #ecf0f1;
+}
+
+.pride-pause-body textarea {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(52, 152, 219, 0.5);
+    color: white;
+    border-radius: 8px;
+}
+
+.pride-pause-body textarea::placeholder {
+    color: rgba(255,255,255,0.5);
 }
 
 .pride-pause-footer {
@@ -237,105 +482,31 @@ body {
     justify-content: flex-end;
 }
 
-.pause-point-badge {
-    display: inline-block;
-    background: #f39c12;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    margin-bottom: 10px;
-}
-
-.workflow-visualization {
-    background: #1a1a2e;
-    color: #00ff88;
-    padding: 15px;
-    border-radius: 10px;
-    font-family: monospace;
-    font-size: 12px;
-    margin: 15px 0;
-    overflow-x: auto;
-}
-
-.data-preview {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
+.pride-pause-footer .btn-secondary {
+    background: #7f8c8d;
+    border: none;
+    padding: 10px 20px;
     border-radius: 8px;
-    padding: 10px;
-    margin: 10px 0;
-    max-height: 200px;
-    overflow-y: auto;
+    color: white;
 }
 
-.data-preview pre {
-    margin: 0;
-    font-size: 11px;
-}
-
-.workflow-step {
-    display: flex;
-    align-items: center;
-    margin: 10px 0;
-    padding: 10px;
-    background: #f8f9fa;
+.pride-pause-footer .btn-success {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border: none;
+    padding: 10px 20px;
     border-radius: 8px;
-}
-
-.workflow-step.completed {
-    background: #d4edda;
-    border-left: 3px solid #28a745;
-}
-
-.workflow-step.paused {
-    background: #fff3cd;
-    border-left: 3px solid #ffc107;
-}
-
-.step-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-}
-
-.step-icon.zapier {
-    background: #ff4a00;
     color: white;
 }
 
-.step-icon.n8n {
-    background: #6c5ce7;
-    color: white;
-}
-
-.step-icon.ai {
-    background: #667eea;
-    color: white;
-}
-
-.zapier-webhook {
-    background: #ff4a00;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 5px;
-    font-family: monospace;
-    font-size: 11px;
-    margin: 5px 0;
-}
-
-/* AI Agent Button */
+/* AI Workflow Button - Blue Theme */
 .ai-workflow-btn {
     position: fixed;
     bottom: 20px;
     left: 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     color: white;
     border: none;
-    padding: 12px 20px;
+    padding: 12px 24px;
     border-radius: 50px;
     cursor: pointer;
     z-index: 1000;
@@ -346,38 +517,6 @@ body {
 
 .ai-workflow-btn:hover {
     transform: scale(1.05);
+    background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
     box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-}
-
-.workflow-status {
-    position: fixed;
-    bottom: 20px;
-    left: 200px;
-    background: white;
-    padding: 8px 15px;
-    border-radius: 50px;
-    font-size: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    display: none;
-    z-index: 1000;
-}
-
-.workflow-status.active {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #28a745;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.2); }
-    100% { opacity: 1; transform: scale(1); }
 }
